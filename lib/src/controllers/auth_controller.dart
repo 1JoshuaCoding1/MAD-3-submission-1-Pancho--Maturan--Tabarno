@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:state_change_demo/src/enum/enum.dart';
 
 class AuthController with ChangeNotifier {
@@ -15,30 +16,41 @@ class AuthController with ChangeNotifier {
 
   AuthState state = AuthState.unauthenticated;
   SimulatedAPI api = SimulatedAPI();
+  final _storage = const FlutterSecureStorage();
+  static const String _sessionKey = 'user_session';
+  static const String _indexKey = 'index_screen_index';
+
 
   login(String userName, String password) async {
     bool isLoggedIn = await api.login(userName, password);
     if (isLoggedIn) {
       state = AuthState.authenticated;
-      //should store session
-
+      await _storage.write(key: _sessionKey, value: 'authenticated');
+      print("login works");
       notifyListeners();
     }
   }
 
-  ///write code to log out the user and add it to the home page.
-  logout() {
-    //should clear session
+  logout() async {
+    await _storage.delete(key: _sessionKey);
+    await _storage.delete(key: _indexKey); 
+    state = AuthState.unauthenticated;
+    notifyListeners();
   }
 
-  ///must be called in main before runApp
-  ///
-  loadSession() async {
-    //check secure storage method
+  Future<void> loadSession() async {
+    String? session = await _storage.read(key: _sessionKey);
+    if (session != null && session == 'authenticated') {
+      state = AuthState.authenticated;
+    } else {
+      state = AuthState.unauthenticated;
+    }
+    notifyListeners();
   }
 
-  ///https://pub.dev/packages/flutter_secure_storage or any caching dependency of your choice like localstorage, hive, or a db
+  
 }
+
 
 class SimulatedAPI {
   Map<String, String> users = {"testUser": "12345678ABCabc!"};
@@ -46,8 +58,7 @@ class SimulatedAPI {
   Future<bool> login(String userName, String password) async {
     await Future.delayed(const Duration(seconds: 4));
     if (users[userName] == null) throw Exception("User does not exist");
-    if (users[userName] != password)
-      throw Exception("Password does not match!");
+    if (users[userName] != password) throw Exception("Password does not match!");
     return users[userName] == password;
   }
 }

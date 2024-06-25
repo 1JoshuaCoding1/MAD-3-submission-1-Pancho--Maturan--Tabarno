@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SimpleCounterScreen extends StatefulWidget {
-  /// "simple-counter"
   static const String route = 'simple-counter-2';
-
-  /// "/simple-counter"
   static const String path = '/simple-counter-2';
-
-  /// "Simple Counter Screen"
   static const String name = 'Simple Counter Screen';
-  const SimpleCounterScreen({super.key});
+
+  const SimpleCounterScreen({Key? key}) : super(key: key);
 
   @override
   State<SimpleCounterScreen> createState() => _SimpleCounterScreenState();
@@ -17,11 +14,33 @@ class SimpleCounterScreen extends StatefulWidget {
 
 class _SimpleCounterScreenState extends State<SimpleCounterScreen> {
   int _counter = 0;
+  final _storage = FlutterSecureStorage();
+  static const String _counterKey = 'simple_counter_value';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCounter();
+  }
+
+  void _loadCounter() async {
+    String? counterValue = await _storage.read(key: _counterKey);
+    if (counterValue != null) {
+      setState(() {
+        _counter = int.parse(counterValue);
+      });
+    }
+  }
+
+  Future<void> _saveCounter() async {
+    await _storage.write(key: _counterKey, value: '$_counter');
+  }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
+    _saveCounter();
   }
 
   @override
