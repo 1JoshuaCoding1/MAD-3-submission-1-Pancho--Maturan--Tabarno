@@ -68,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     offset: Offset(0, 3), // changes position of shadow
                   ),
                 ],
-                borderRadius: BorderRadius.circular(
-                    12), // Optional: if you want rounded corners
+                borderRadius:
+                    BorderRadius.circular(12), // (For rounded corners)
               ),
               child: Form(
                 key: formKey,
