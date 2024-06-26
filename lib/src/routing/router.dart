@@ -39,13 +39,13 @@ class GlobalRouter {
   }
 
   FutureOr<String?> handleRedirect(BuildContext context, GoRouterState state) async {
-    if (AuthController.I.state == AuthState.authenticated) {
+    if (AuthController.instance.state == AuthState.authenticated) {
       if (state.matchedLocation != LoginScreen.route) {
         return null;
       }
       return HomeScreen.route;
     }
-    if (AuthController.I.state != AuthState.authenticated) {
+    if (AuthController.instance.state != AuthState.authenticated) {
       return LoginScreen.route;
     }
     return null;
@@ -60,7 +60,7 @@ class GlobalRouter {
       navigatorKey: _rootNavigatorKey,
       initialLocation: initialLocation,
       redirect: handleRedirect,
-      refreshListenable: AuthController.I,
+      refreshListenable: AuthController.instance,
       routes: [
         GoRoute(
           parentNavigatorKey: _rootNavigatorKey,

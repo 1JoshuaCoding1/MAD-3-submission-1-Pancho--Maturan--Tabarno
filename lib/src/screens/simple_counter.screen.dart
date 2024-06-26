@@ -25,11 +25,9 @@ class _SimpleCounterScreenState extends State<SimpleCounterScreen> {
 
   void _loadCounter() async {
     String? counterValue = await _storage.read(key: _counterKey);
-    if (counterValue != null) {
-      setState(() {
-        _counter = int.parse(counterValue);
-      });
-    }
+    setState(() {
+      _counter = counterValue != null ? int.parse(counterValue) : 0;
+    });
   }
 
   Future<void> _saveCounter() async {

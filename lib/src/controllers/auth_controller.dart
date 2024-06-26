@@ -16,9 +16,12 @@ class AuthController with ChangeNotifier {
 
   AuthState state = AuthState.unauthenticated;
   SimulatedAPI api = SimulatedAPI();
+  
   final _storage = const FlutterSecureStorage();
   static const String _sessionKey = 'user_session';
   static const String _indexKey = 'index_screen_index';
+  static const String _counterKey = 'simple_counter_value';
+
 
 
   login(String userName, String password) async {
@@ -32,8 +35,7 @@ class AuthController with ChangeNotifier {
   }
 
   logout() async {
-    await _storage.delete(key: _sessionKey);
-    await _storage.delete(key: _indexKey); 
+    await _storage.deleteAll(); // Clear all stored values
     state = AuthState.unauthenticated;
     notifyListeners();
   }

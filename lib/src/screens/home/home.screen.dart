@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _counter = 0;
-  final _storage = FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage();
   static const String _counterKey = 'home_screen_counter';
 
   @override
