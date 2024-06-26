@@ -18,10 +18,12 @@ import 'package:state_change_demo/src/screens/stfulP_stlssC.dart';
 
 class GlobalRouter {
   static void initialize() {
-    GetIt.instance.registerSingletonAsync<GlobalRouter>(() => GlobalRouter.create());
+    GetIt.instance
+        .registerSingletonAsync<GlobalRouter>(() => GlobalRouter.create());
   }
 
-  static Future<GlobalRouter> get instance => GetIt.instance.getAsync<GlobalRouter>();
+  static Future<GlobalRouter> get instance =>
+      GetIt.instance.getAsync<GlobalRouter>();
 
   static Future<GlobalRouter> get I => GetIt.instance.getAsync<GlobalRouter>();
 
@@ -38,17 +40,20 @@ class GlobalRouter {
     return instance;
   }
 
-  FutureOr<String?> handleRedirect(BuildContext context, GoRouterState state) async {
+  FutureOr<String?> handleRedirect(
+      BuildContext context, GoRouterState state) async {
+    // Check if the user is authenticated
     if (AuthController.I.state == AuthState.authenticated) {
+      // If the current route is not the login screen, do nothing (return null to indicate no redirection)
       if (state.matchedLocation != LoginScreen.route) {
         return null;
       }
+      // If the user is authenticated and on the login screen, redirect to the home screen
       return HomeScreen.route;
-    }
-    if (AuthController.I.state != AuthState.authenticated) {
+    } else {
+      // If the user is not authenticated, redirect to the login screen
       return LoginScreen.route;
     }
-    return null;
   }
 
   Future<void> _initialize() async {
@@ -60,7 +65,8 @@ class GlobalRouter {
       navigatorKey: _rootNavigatorKey,
       initialLocation: initialLocation,
       redirect: handleRedirect,
-      refreshListenable: AuthController.I,
+      refreshListenable:
+          AuthController.I, // The router listen to changes in the auth state
       routes: [
         GoRoute(
           parentNavigatorKey: _rootNavigatorKey,
@@ -102,7 +108,8 @@ class GlobalRouter {
               parentNavigatorKey: _rootNavigatorKey,
               path: SimpleCounterScreenWithInitialValue.route,
               name: SimpleCounterScreenWithInitialValue.name,
-              builder: (context, _) => const SimpleCounterScreenWithInitialValue(initialValue: 10),
+              builder: (context, _) =>
+                  const SimpleCounterScreenWithInitialValue(initialValue: 10),
             ),
             GoRoute(
               parentNavigatorKey: _rootNavigatorKey,
