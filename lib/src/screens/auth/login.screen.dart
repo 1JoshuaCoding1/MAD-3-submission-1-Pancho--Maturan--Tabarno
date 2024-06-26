@@ -42,99 +42,107 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[400],
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: const Text("Login"),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          height: 52,
-          child: ElevatedButton(
-            onPressed: () {
-              onSubmit();
-            },
-            child: const Text("Login"),
-          ),
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title:
+              const Text("Login", style: TextStyle(color: Colors.deepPurple)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-      ),
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    decoration: decoration.copyWith(
-                        labelText: "Username",
-                        prefixIcon: const Icon(Icons.person)),
-                    focusNode: usernameFn,
-                    controller: username,
-                    onEditingComplete: () {
-                      passwordFn.requestFocus();
-                    },
-                    validator: MultiValidator([
-                      RequiredValidator(
-                          errorText: 'Please fill out the username'),
-                      MaxLengthValidator(32,
-                          errorText: "Username cannot exceed 32 characters"),
-                      PatternValidator(r'^[a-zA-Z0-9 ]+$',
-                          errorText:
-                              'Username cannot contain special characters'),
-                    ]).call,
+        body: SingleChildScrollView(
+          child: Center(
+            // Center the content
+            child: Container(
+              width: 300, // Define square size
+              height: 300,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.white, // Background color of the square
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0, 3), // changes position of shadow
                   ),
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: obfuscate,
-                    decoration: decoration.copyWith(
+                ],
+                borderRadius: BorderRadius.circular(
+                    12), // Optional: if you want rounded corners
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, // Center the form content vertically
+                  children: [
+                    TextFormField(
+                      decoration: decoration.copyWith(
+                        labelText: "Username",
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      focusNode: usernameFn,
+                      controller: username,
+                      onEditingComplete: () => passwordFn.requestFocus(),
+                      validator: MultiValidator([
+                        RequiredValidator(
+                            errorText: 'Please fill out the username'),
+                        MaxLengthValidator(32,
+                            errorText: "Username cannot exceed 32 characters"),
+                        PatternValidator(r'^[a-zA-Z0-9 ]+$',
+                            errorText:
+                                'Username cannot contain special characters'),
+                      ]),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      keyboardType: TextInputType.visiblePassword,
+                      obscureText: obfuscate,
+                      decoration: decoration.copyWith(
                         labelText: "Password",
-                        prefixIcon: const Icon(Icons.password),
+                        prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                obfuscate = !obfuscate;
-                              });
-                            },
-                            icon: Icon(obfuscate
-                                ? Icons.remove_red_eye_rounded
-                                : CupertinoIcons.eye_slash))),
-                    focusNode: passwordFn,
-                    controller: password,
-                    onEditingComplete: () {
-                      passwordFn.unfocus();
-
-                      ///call submit maybe?
-                    },
-                    validator: MultiValidator([
-                      RequiredValidator(errorText: "Password is required"),
-                      MinLengthValidator(12,
-                          errorText:
-                              "Password must be at least 12 characters long"),
-                      MaxLengthValidator(128,
-                          errorText: "Password cannot exceed 72 characters"),
-                      PatternValidator(
+                          onPressed: () =>
+                              setState(() => obfuscate = !obfuscate),
+                          icon: Icon(obfuscate
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                        ),
+                      ),
+                      focusNode: passwordFn,
+                      controller: password,
+                      validator: MultiValidator([
+                        RequiredValidator(errorText: "Password is required"),
+                        MinLengthValidator(12,
+                            errorText:
+                                "Password must be at least 12 characters long"),
+                        MaxLengthValidator(128,
+                            errorText: "Password cannot exceed 128 characters"),
+                        PatternValidator(
                           r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+?\-=[\]{};':,.<>]).*$",
                           errorText:
-                              'Password must contain at least one symbol, one uppercase letter, one lowercase letter, and one number.')
-                    ]).call,
-                  ),
+                              'Password must contain at least one symbol, one uppercase letter, one lowercase letter, and one number.',
+                        ),
+                      ]),
+                    ),
+                    const SizedBox(
+                        height: 20), // Add some space before the login button
+                    ElevatedButton(
+                      onPressed: onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.deepPurple,
+                      ),
+                      child: const Text("Login"),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   onSubmit() {
@@ -145,37 +153,38 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  final OutlineInputBorder _baseBorder = const OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.grey),
-    borderRadius: BorderRadius.all(Radius.circular(4)),
+  final OutlineInputBorder _baseBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.deepPurple.shade100),
+    borderRadius: BorderRadius.all(Radius.circular(8)),
   );
 
   InputDecoration get decoration => InputDecoration(
-      // prefixIconColor: AppColors.primary.shade700,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      filled: true,
-      fillColor: Colors.white,
-      errorMaxLines: 3,
-      disabledBorder: _baseBorder,
-      enabledBorder: _baseBorder.copyWith(
-        borderSide: const BorderSide(color: Colors.black87, width: 1),
-      ),
-      focusedBorder: _baseBorder.copyWith(
-        borderSide: const BorderSide(color: Colors.blueAccent, width: 1),
-      ),
-      errorBorder: _baseBorder.copyWith(
-        borderSide: const BorderSide(color: Colors.deepOrangeAccent, width: 1),
-      )
-      // errorStyle:
-      // AppTypography.body.b5.copyWith(color: AppColors.highlight.shade900),
-      // focusedErrorBorder: _baseBorder.copyWith(
-      // borderSide: BorderSide(color: AppColors.highlight.shade900, width: 1),
-      // ),
-      // labelStyle: AppTypography.subheading.s1
-      //     .copyWith(color: AppColors.secondary.shade2),
-      // floatingLabelStyle: AppTypography.heading.h5
-      //     .copyWith(color: AppColors.primary.shade400, fontSize: 18),
-      // hintStyle: AppTypography.subheading.s1
-      //     .copyWith(color: AppColors.secondary.shade2),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        filled: true,
+        fillColor: Colors.white,
+        errorMaxLines: 3,
+        disabledBorder: _baseBorder,
+        enabledBorder: _baseBorder.copyWith(
+          borderSide: BorderSide(color: Colors.deepPurple.shade200, width: 1),
+        ),
+        focusedBorder: _baseBorder.copyWith(
+          borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+        ),
+        errorBorder: _baseBorder.copyWith(
+          borderSide: BorderSide(color: Colors.redAccent, width: 1),
+        ),
+
+        // errorStyle:
+        // AppTypography.body.b5.copyWith(color: AppColors.highlight.shade900),
+        // focusedErrorBorder: _baseBorder.copyWith(
+        // borderSide: BorderSide(color: AppColors.highlight.shade900, width: 1),
+        // ),
+        // labelStyle: AppTypography.subheading.s1
+        //     .copyWith(color: AppColors.secondary.shade2),
+        // floatingLabelStyle: AppTypography.heading.h5
+        //     .copyWith(color: AppColors.primary.shade400, fontSize: 18),
+        // hintStyle: AppTypography.subheading.s1
+        //     .copyWith(color: AppColors.secondary.shade2),
       );
 }
