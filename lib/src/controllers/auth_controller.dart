@@ -16,25 +16,33 @@ class AuthController with ChangeNotifier {
 
   AuthState state = AuthState.unauthenticated;
   SimulatedAPI api = SimulatedAPI();
+  
   final _storage = const FlutterSecureStorage();
   static const String _sessionKey = 'user_session';
   static const String _indexKey = 'index_screen_index';
+  static const String _counterKey = 'simple_counter_value';
+  static const String _usernameKey = 'username'; 
 
+  String? _username; 
 
-  login(String userName, String password) async {
+  String? get username => _username; 
+
+  Future<void> login(String userName, String password) async {
     bool isLoggedIn = await api.login(userName, password);
     if (isLoggedIn) {
       state = AuthState.authenticated;
+      _username = userName; 
       await _storage.write(key: _sessionKey, value: 'authenticated');
+      await _storage.write(key: _usernameKey, value: userName); 
       print("login works");
       notifyListeners();
     }
   }
 
-  logout() async {
-    await _storage.delete(key: _sessionKey);
-    await _storage.delete(key: _indexKey); 
+  Future<void> logout() async {
+    await _storage.deleteAll(); 
     state = AuthState.unauthenticated;
+    _username = null; 
     notifyListeners();
   }
 
@@ -42,15 +50,14 @@ class AuthController with ChangeNotifier {
     String? session = await _storage.read(key: _sessionKey);
     if (session != null && session == 'authenticated') {
       state = AuthState.authenticated;
-    } else {
+      _username = await _storage.read(key: _usernameKey); 
+          } else {
       state = AuthState.unauthenticated;
+      _username = null;
     }
     notifyListeners();
   }
-
-  
 }
-
 
 class SimulatedAPI {
   Map<String, String> users = {"testUser": "12345678ABCabc!"};

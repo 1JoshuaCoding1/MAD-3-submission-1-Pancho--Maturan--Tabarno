@@ -64,11 +64,22 @@ class _IndexScreenState extends State<IndexScreen> {
     await _storage.delete(key: _indexKey);
   }
 
-  @override
+  void _logout() async {
+    await AuthController.instance.logout();
+    GoRouter.of(context).go('/login'); 
+  }
+
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(IndexScreen.name),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: _logout,
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
