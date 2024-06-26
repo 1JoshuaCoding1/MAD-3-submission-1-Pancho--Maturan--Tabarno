@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:state_change_demo/src/controllers/auth_controller.dart';
-import 'package:state_change_demo/src/screens/simple_counter.screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String route = "/";
@@ -17,11 +16,23 @@ class _HomeScreenState extends State<HomeScreen> {
   int _counter = 0;
   final _storage = const FlutterSecureStorage();
   static const String _counterKey = 'home_screen_counter';
+  String? _username;
+
 
   @override
   void initState() {
     super.initState();
     _loadCounter();
+    _loadUsername();
+  }
+
+    void _loadUsername() {
+    var user = AuthController.instance.username;
+    if (user != null) {
+      setState(() {
+        _username = user;
+      });
+    }
   }
 
   void _loadCounter() async {
@@ -54,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               AuthController.I.logout();
-              _storage.delete(key: _counterKey); // Clear counter on logout
-            },
+              _storage.delete(key: _counterKey);  
+                         },
           )
         ],
       ),
@@ -63,6 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            if (_username != null)
+              Text(
+                'Logged in as: $_username',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            const SizedBox(height: 20),
             const Text(
               'Welcome to the Home Screen!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
