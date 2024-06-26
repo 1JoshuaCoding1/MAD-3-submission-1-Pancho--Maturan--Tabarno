@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:state_change_demo/src/controllers/auth_controller.dart';
-import 'package:state_change_demo/src/enum/enum.dart';
 import 'package:state_change_demo/src/screens/auth/login.screen.dart';
 import 'package:state_change_demo/src/screens/home/home.screen.dart';
 import 'package:state_change_demo/src/screens/home/wrapper.dart';
@@ -15,6 +13,8 @@ import 'package:state_change_demo/src/screens/simple_counter.screen.dart';
 import 'package:state_change_demo/src/screens/simple_counter_with_initial_value.screen.dart';
 import 'package:state_change_demo/src/screens/stfulP_stfulP.dart';
 import 'package:state_change_demo/src/screens/stfulP_stlssC.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:state_change_demo/src/enum/enum.dart';
 
 class GlobalRouter {
   static void initialize() {
@@ -28,7 +28,7 @@ class GlobalRouter {
   late GoRouter router;
   late GlobalKey<NavigatorState> _rootNavigatorKey;
   late GlobalKey<NavigatorState> _shellNavigatorKey;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  late SharedPreferences _prefs;
 
   GlobalRouter._();
 
@@ -55,6 +55,7 @@ class GlobalRouter {
     _rootNavigatorKey = GlobalKey<NavigatorState>();
     _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+    _prefs = await SharedPreferences.getInstance();
     String initialLocation = await getInitialRoute();
     router = GoRouter(
       navigatorKey: _rootNavigatorKey,
@@ -140,11 +141,11 @@ class GlobalRouter {
   }
 
   Future<void> _saveCurrentRoute(String location) async {
-    await _storage.write(key: 'lastRoute', value: location);
+    await _prefs.setString('lastRoute', location);
   }
 
   Future<String?> _getLastRoute() async {
-    return await _storage.read(key: 'lastRoute');
+    return _prefs.getString('lastRoute');
   }
 
   Future<String> getInitialRoute() async {

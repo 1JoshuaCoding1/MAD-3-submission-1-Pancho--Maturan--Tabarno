@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SimpleCounterScreen extends StatefulWidget {
   static const String route = 'simple-counter-2';
@@ -14,7 +14,6 @@ class SimpleCounterScreen extends StatefulWidget {
 
 class _SimpleCounterScreenState extends State<SimpleCounterScreen> {
   int _counter = 0;
-  final _storage = FlutterSecureStorage();
   static const String _counterKey = 'simple_counter_value';
 
   @override
@@ -24,14 +23,15 @@ class _SimpleCounterScreenState extends State<SimpleCounterScreen> {
   }
 
   void _loadCounter() async {
-    String? counterValue = await _storage.read(key: _counterKey);
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _counter = counterValue != null ? int.parse(counterValue) : 0;
+      _counter = prefs.getInt(_counterKey) ?? 0;
     });
   }
 
   Future<void> _saveCounter() async {
-    await _storage.write(key: _counterKey, value: '$_counter');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_counterKey, _counter);
   }
 
   void _incrementCounter() {

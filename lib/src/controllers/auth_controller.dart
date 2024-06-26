@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:state_change_demo/src/enum/enum.dart';
 
 class AuthController with ChangeNotifier {
@@ -9,18 +9,14 @@ class AuthController with ChangeNotifier {
     GetIt.instance.registerSingleton<AuthController>(AuthController());
   }
 
-  // Static getter to access the instance through GetIt
   static AuthController get instance => GetIt.instance<AuthController>();
 
   static AuthController get I => GetIt.instance<AuthController>();
 
   AuthState state = AuthState.unauthenticated;
   SimulatedAPI api = SimulatedAPI();
-  
-  final _storage = const FlutterSecureStorage();
+
   static const String _sessionKey = 'user_session';
-  static const String _indexKey = 'index_screen_index';
-  static const String _counterKey = 'simple_counter_value';
   static const String _usernameKey = 'username'; 
 
   String? _username; 
@@ -31,27 +27,31 @@ class AuthController with ChangeNotifier {
     bool isLoggedIn = await api.login(userName, password);
     if (isLoggedIn) {
       state = AuthState.authenticated;
-      _username = userName; 
-      await _storage.write(key: _sessionKey, value: 'authenticated');
-      await _storage.write(key: _usernameKey, value: userName); 
+      _username = userName;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_sessionKey, 'authenticated');
+      await prefs.setString(_usernameKey, userName);
       print("login works");
       notifyListeners();
     }
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll(); 
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
     state = AuthState.unauthenticated;
-    _username = null; 
+    _username = null;
+    print("session end");
     notifyListeners();
   }
 
   Future<void> loadSession() async {
-    String? session = await _storage.read(key: _sessionKey);
+    final prefs = await SharedPreferences.getInstance();
+    String? session = prefs.getString(_sessionKey);
     if (session != null && session == 'authenticated') {
       state = AuthState.authenticated;
-      _username = await _storage.read(key: _usernameKey); 
-          } else {
+      _username = prefs.getString(_usernameKey);
+    } else {
       state = AuthState.unauthenticated;
       _username = null;
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:state_change_demo/src/controllers/auth_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,10 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _counter = 0;
-  final _storage = const FlutterSecureStorage();
   static const String _counterKey = 'home_screen_counter';
   String? _username;
-
 
   @override
   void initState() {
@@ -26,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUsername();
   }
 
-    void _loadUsername() {
+  void _loadUsername() {
     var user = AuthController.instance.username;
     if (user != null) {
       setState(() {
@@ -36,10 +34,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadCounter() async {
-    String? counterValue = await _storage.read(key: _counterKey);
+    final prefs = await SharedPreferences.getInstance();
+    int? counterValue = prefs.getInt(_counterKey);
     if (counterValue != null) {
       setState(() {
-        _counter = int.parse(counterValue);
+        _counter = counterValue;
       });
     }
   }
@@ -52,7 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _saveCounter() async {
-    await _storage.write(key: _counterKey, value: '$_counter');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_counterKey, _counter);
   }
 
   @override
@@ -65,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               AuthController.I.logout();
-              _storage.delete(key: _counterKey);  
-                         },
+              _clearCounter();
+            },
           )
         ],
       ),
@@ -101,5 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<void> _clearCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_counterKey);
   }
 }

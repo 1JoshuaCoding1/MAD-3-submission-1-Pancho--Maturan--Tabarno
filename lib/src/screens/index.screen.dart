@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:state_change_demo/src/screens/key_example.dart';
 import 'package:state_change_demo/src/screens/no_key_example.dart';
@@ -22,7 +22,6 @@ class IndexScreen extends StatefulWidget {
 
 class _IndexScreenState extends State<IndexScreen> {
   late int _selectedIndex;
-  final _storage = FlutterSecureStorage();
   static const String _indexKey = 'index_screen_index';
 
   @override
@@ -40,15 +39,15 @@ class _IndexScreenState extends State<IndexScreen> {
 
   void _handleAuthChange() {
     if (!mounted) return;
-    setState(() {
-    });
+    setState(() {});
   }
 
   void _loadSelectedIndex() async {
-    String? indexValue = await _storage.read(key: _indexKey);
+    final prefs = await SharedPreferences.getInstance();
+    int? indexValue = prefs.getInt(_indexKey);
     if (indexValue != null) {
       setState(() {
-        _selectedIndex = int.parse(indexValue);
+        _selectedIndex = indexValue;
       });
     } else {
       _selectedIndex = 0;
@@ -56,20 +55,24 @@ class _IndexScreenState extends State<IndexScreen> {
   }
 
   Future<void> _saveSelectedIndex(int index) async {
-    _selectedIndex = index;
-    await _storage.write(key: _indexKey, value: '$_selectedIndex');
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedIndex = index;
+    });
+    await prefs.setInt(_indexKey, _selectedIndex);
   }
 
   Future<void> _clearSessionData() async {
-    await _storage.delete(key: _indexKey);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_indexKey);
   }
 
   void _logout() async {
     await AuthController.instance.logout();
-    GoRouter.of(context).go('/login'); 
+    GoRouter.of(context).go('/login');
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +93,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(0);
-                    GoRouter.of(context).push(SimpleCounterScreen.path);
+                    GoRouter.of(context).push(SimpleCounterScreen.route);
                   },
                   title: const Text(SimpleCounterScreen.name),
                   trailing: const Icon(Icons.chevron_right),
@@ -98,7 +101,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(1);
-                    GoRouter.of(context).push(SimpleCounterScreenWithInitialValue.path);
+                    GoRouter.of(context).push(SimpleCounterScreenWithInitialValue.route);
                   },
                   title: const Text(SimpleCounterScreenWithInitialValue.name),
                   trailing: const Icon(Icons.chevron_right),
@@ -106,7 +109,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(2);
-                    GoRouter.of(context).push(StatefulParent.path);
+                    GoRouter.of(context).push(StatefulParent.route);
                   },
                   title: const Text(StatefulParent.name),
                   trailing: const Icon(Icons.chevron_right),
@@ -114,7 +117,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(3);
-                    GoRouter.of(context).push(StatefulParentAndChild.path);
+                    GoRouter.of(context).push(StatefulParentAndChild.route);
                   },
                   title: const Text(StatefulParentAndChild.name),
                   trailing: const Icon(Icons.chevron_right),
@@ -122,7 +125,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(4);
-                    GoRouter.of(context).push(KeyExample.path);
+                    GoRouter.of(context).push(KeyExample.route);
                   },
                   title: const Text(KeyExample.name),
                   trailing: const Icon(Icons.chevron_right),
@@ -130,7 +133,7 @@ class _IndexScreenState extends State<IndexScreen> {
                 ListTile(
                   onTap: () async {
                     await _saveSelectedIndex(5);
-                    GoRouter.of(context).push(NoKeyExample.path);
+                    GoRouter.of(context).push(NoKeyExample.route);
                   },
                   title: const Text(NoKeyExample.name),
                   trailing: const Icon(Icons.chevron_right),
