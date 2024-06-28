@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CounterNotifier with ChangeNotifier {
   int counter = 0;
+  static const String _counterKey = 'counter';
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   CounterNotifier() {
     _loadCounter();
   }
 
   Future<void> _loadCounter() async {
-    final prefs = await SharedPreferences.getInstance();
-    counter = prefs.getInt('counter') ?? 0;
+    String? counterValue = await _storage.read(key: _counterKey);
+    counter = counterValue != null ? int.parse(counterValue) : 0;
     notifyListeners();
   }
 
   Future<void> increment() async {
     counter = counter + 1;
     notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('counter', counter);
+    await _storage.write(key: _counterKey, value: counter.toString());
   }
 }
 
