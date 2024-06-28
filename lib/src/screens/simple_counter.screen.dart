@@ -23,11 +23,10 @@ class _SimpleCounterScreenState extends State<SimpleCounterScreen> {
   }
 
   void _loadCounter() async {
-    final prefs = await SharedPreferences.getInstance();
-    final counterValue = prefs.getInt(_counterKey);
+    String? counterValue = await _storage.read(key: _counterKey);
     if (counterValue != null) {
       setState(() {
-        _counter = counterValue;
+        _counter = int.parse(counterValue);
       });
     }
   }

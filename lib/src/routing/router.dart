@@ -40,10 +40,9 @@ class GlobalRouter {
     return instance;
   }
 
-  FutureOr<String?> handleRedirect(
-      BuildContext context, GoRouterState state) async {
+  FutureOr<String?> handleRedirect(BuildContext context, GoRouterState state) async {
     // Check if the user is authenticated
-    if (AuthController.I.state == AuthState.authenticated) {
+    if (AuthController.instance.state == AuthState.authenticated) {
       // If the current route is not the login screen, do nothing (return null to indicate no redirection)
       if (state.matchedLocation != LoginScreen.route) {
         return null;
@@ -65,8 +64,7 @@ class GlobalRouter {
       navigatorKey: _rootNavigatorKey,
       initialLocation: initialLocation,
       redirect: handleRedirect,
-      refreshListenable:
-          AuthController.I, // The router listen to changes in the auth state
+      refreshListenable: AuthController.instance, // The router listen to changes in the auth state
       routes: [
         GoRoute(
           parentNavigatorKey: _rootNavigatorKey,
