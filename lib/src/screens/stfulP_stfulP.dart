@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StatefulParentAndChild extends StatefulWidget {
-  /// "stateful-parent-and-child-parent"
   static const String route = 'stateful-parent-and-child';
-
-  /// "/stateful-parent-and-child"
   static const String path = '/stateful-parent-and-child';
-
-  /// "Stateful Parent"
   static const String name = 'Stateful Parent and Child';
 
   const StatefulParentAndChild({super.key});
@@ -18,20 +14,35 @@ class StatefulParentAndChild extends StatefulWidget {
 
 class _StatefulParentAndChildState extends State<StatefulParentAndChild> {
   int _parentValue = 0;
+  num newV = 0;
 
-  void _incrementParent() {
+  @override
+  void initState() {
+    super.initState();
+    _loadParentValue();
+  }
+
+  _loadParentValue() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _parentValue++;
+      _parentValue = prefs.getInt('parentValue') ?? 0;
+      newV = prefs.getDouble('newV') ?? 0;
     });
   }
 
-  int x = 4, y = 2;
-  num newV = 0;
+  _saveParentValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('parentValue', _parentValue);
+    await prefs.setDouble('newV', newV.toDouble());
+  }
+
   multiply() {
-    num z = (x * y * _parentValue++);
+    _parentValue += 1;
+    double z = (_parentValue++ * 4 * 2).toDouble();
     setState(() {
       newV = z;
     });
+    _saveParentValue();
     print(newV);
   }
 
@@ -42,6 +53,7 @@ class _StatefulParentAndChildState extends State<StatefulParentAndChild> {
       setState(() {
         newV = 9999;
       });
+      _saveParentValue();
     }
   }
 
@@ -58,8 +70,7 @@ class _StatefulParentAndChildState extends State<StatefulParentAndChild> {
             Text('Parent Value: $newV'),
             StatefulChild(),
             ElevatedButton(
-              onPressed: delayedIncrement,
-              //_incrementParent,
+              onPressed: multiply,
               child: const Text('Increment Parent'),
             ),
           ],
@@ -79,10 +90,29 @@ class StatefulChild extends StatefulWidget {
 class _StatefulChildState extends State<StatefulChild> {
   int _childValue = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadChildValue();
+  }
+
+  _loadChildValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _childValue = prefs.getInt('childValue') ?? 0;
+    });
+  }
+
+  _saveChildValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('childValue', _childValue);
+  }
+
   void _incrementChild() {
     setState(() {
       _childValue++;
     });
+    _saveChildValue();
   }
 
   @override
